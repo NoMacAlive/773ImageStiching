@@ -43,75 +43,95 @@ def match(left,right,left_tuples,right_tuples,threshold = 0.9):
     print('entered Match')
     #i means the index in left descriptor list
     #j means index in right descriptor list
-    i = 0
-    j = 0
+
     putativeMatches = []
-    for desc_L in  left:
+    left_list,left_sqr,right_list,right_sqr = calculateMinusMeanandSqr(left,right)
+    for i in range(len(left)):
         bestMatch = (0,0,0)
         secondBestMatch = (0,0,0)
-        NCC = 0
-        NCC2 = 0
-        j = 0
-        for desc_R in right:
-            newNcc = calculateNCC(desc_L,desc_R)
+        for j in range(len(right)):
+            newNcc = calculateNCC(left_list[i],left_sqr[i],right_list[j],right_sqr[j])
             if bestMatch[2]<newNcc:
                 secondBestMatch = bestMatch
                 bestMatch = (i,j,newNcc)
             if secondBestMatch[2]<newNcc and bestMatch[2]>newNcc:
                 secondBestMatch = (i,j,newNcc)
                 
-
-            j = j + 1
         
         if secondBestMatch[2]/bestMatch[2]<threshold:
             #print(bestMatch)
             putativeMatches.append((left_tuples[bestMatch[0]],right_tuples[bestMatch[1]],bestMatch[2]))
-        i = i + 1
     print(putativeMatches)
     return putativeMatches
 
     
                 
-            
-    
-
-#input two descriptors, each contain a descriptor
-def calculateNCC(desc_L,desc_R):
-    leftMean = np.mean(desc_L)
-    rightMean = np.mean(desc_R)
-    fminus_mean = []
-    gminus_mean = []
-    fminus_mean_sqr = []
-    gminus_mean_sqr = []
+def calculateNCC(left_list,left_sqr,right_list,right_sqr):
     top = 0
-    bottom = 0
-    for f in desc_L:
-        for g in desc_R:
-            fminus_mean.append(f-leftMean)
-            gminus_mean.append(g-rightMean)
-            top = top + (f-leftMean)*(g-rightMean)
-            fminus_mean_sqr.append((f-leftMean)**2)
-            gminus_mean_sqr.append((g-rightMean)**2)
+    for i in range(len(left_list)):
+        for j in range(len(right_list)):
+            top = top + left_list[i]*right_list[j]
 
-    bottom = math.sqrt(sum(fminus_mean_sqr)*sum(gminus_mean_sqr))
+    bottom = math.sqrt(left_sqr)*math.sqrt(right_sqr)
 
     return top/bottom
+
+    
+
+# #input two descriptors, each contain a descriptor
+# def calculateNCC(desc_L,desc_R):
+#     leftMean = np.mean(desc_L)
+#     rightMean = np.mean(desc_R)
+#     fminus_mean = []
+#     gminus_mean = []
+#     fminus_mean_sqr = []
+#     gminus_mean_sqr = []
+#     top = 0
+#     bottom = 0
+#     for f in desc_L:
+#         for g in desc_R:
+#             fminus_mean.append(f-leftMean)
+#             gminus_mean.append(g-rightMean)
+#             top = top + (f-leftMean)*(g-rightMean)
+#             fminus_mean_sqr.append((f-leftMean)**2)
+#             gminus_mean_sqr.append((g-rightMean)**2)
+
+#     bottom = math.sqrt(sum(fminus_mean_sqr)*sum(gminus_mean_sqr))
+
+#     return top/bottom
 
 
 def calculateMinusMeanandSqr(left,right):
     left_list = []   #pre calculate the fi-fmean
     right_list = []     #pre calculate the gi-gmean
-    leftMean = np.mean(desc_L)
-    rightMean = np.mean(desc_R)
-    fminus_mean = []
+    left_sqr = []
+    right_sqr = []
+
+
     gminus_mean = []
-    fminus_mean_sqr = []
     gminus_mean_sqr = []
-    top = 0
-    bottom = 0
-    for f in desc_L:
-        for g in desc_R:
+    for desc_L in left:
+        leftMean = np.mean(desc_L)
+        fminus_mean = []
+        fminus_mean_sqr = []
+        for f in desc_L:
+
             fminus_mean.append(f-leftMean)
-            gminus_mean.append(g-rightMean)
             fminus_mean_sqr.append((f-leftMean)**2)
+        left_list.append(fminus_mean)
+        left_sqr.append(sum(fminus_mean_sqr))
+    
+    for desc_R in right:
+        rightMean = np.mean(desc_R)
+        gminus_mean = []
+        gminus_mean_sqr = []
+        for g in desc_R:
+            rightMean = np.mean(desc_R)
+            gminus_mean.append(g-rightMean)
             gminus_mean_sqr.append((g-rightMean)**2)
+        right_list.append(gminus_mean)
+        right_sqr.append(sum(gminus_mean_sqr))
+
+    return left_list,left_sqr,right_list,right_sqr
+
+            
