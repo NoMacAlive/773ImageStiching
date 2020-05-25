@@ -1,0 +1,5 @@
+read image width=1000, height=750
+read image width=1000, height=750
+elapsed time image smoothing:  3.840618
+988
+992
