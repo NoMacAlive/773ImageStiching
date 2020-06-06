@@ -38,8 +38,6 @@ def precomputeMatchingDescriptor(newTuples,image,width,height,wid = 7):
 #input descriptors from both images
 #output a tuple ((y_L,x_L,C),(y_R,x_R,C),NCC)
 def match(left,right,left_tuples,right_tuples,threshold = 0.9):
-    print(len(left_tuples))
-    print(len(right_tuples))
     print('entered Match')
     #i means the index in left descriptor list
     #j means index in right descriptor list
@@ -51,6 +49,7 @@ def match(left,right,left_tuples,right_tuples,threshold = 0.9):
         secondBestMatch = (0,0,0)
         for j in range(len(right)):
             newNcc = calculateNCC(left_list[i],left_sqr[i],right_list[j],right_sqr[j])
+
             if bestMatch[2]<newNcc:
                 secondBestMatch = bestMatch
                 bestMatch = (i,j,newNcc)
@@ -61,16 +60,15 @@ def match(left,right,left_tuples,right_tuples,threshold = 0.9):
         if secondBestMatch[2]/bestMatch[2]<threshold:
             #print(bestMatch)
             putativeMatches.append((left_tuples[bestMatch[0]],right_tuples[bestMatch[1]],bestMatch[2]))
-    print(putativeMatches)
-    return putativeMatches
+    # print(putativeMatches)
+    return putativeMatches,left_list,right_list
 
     
                 
 def calculateNCC(left_list,left_sqr,right_list,right_sqr):
     top = 0
     for i in range(len(left_list)):
-        for j in range(len(right_list)):
-            top = top + left_list[i]*right_list[j]
+        top = top + left_list[i]*right_list[i]
 
     bottom = math.sqrt(left_sqr)*math.sqrt(right_sqr)
 
@@ -115,7 +113,6 @@ def calculateMinusMeanandSqr(left,right):
         fminus_mean = []
         fminus_mean_sqr = []
         for f in desc_L:
-
             fminus_mean.append(f-leftMean)
             fminus_mean_sqr.append((f-leftMean)**2)
         left_list.append(fminus_mean)

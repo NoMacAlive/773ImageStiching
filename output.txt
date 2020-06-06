@@ -1,5 +1,7 @@
+left point
+(444, 947, 1)
+transformed point
+[426.61926191 316.70648415   1.        ]
+right point
+(426.0, 317.0)
 read image width=1000, height=750
-read image width=1000, height=750
-elapsed time image smoothing:  3.840618
-988
-992
