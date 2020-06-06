@@ -58,8 +58,10 @@ def prepareMatchingImage(left_pixel_array, right_pixel_array, image_width, image
 
 # This is our code skeleton that performs the stitching
 def main():
-    filename_left_image = "./images/panoramaStitching/bryce_left_02.png"
-    filename_right_image = "./images/panoramaStitching/bryce_right_02.png"
+    # filename_left_image = "./images/panoramaStitching/bryce_left_02.png"
+    # filename_right_image = "./images/panoramaStitching/bryce_right_02.png"
+    filename_left_image = "./images/panoramaStitching/tongariro_left_01.png"
+    filename_right_image = "./images/panoramaStitching/tongariro_right_01.png"
 
     (image_width, image_height, px_array_left_original)  = IORW.readRGBImageAndConvertToGreyscalePixelArray(filename_left_image)
     (image_width, image_height, px_array_right_original) = IORW.readRGBImageAndConvertToGreyscalePixelArray(filename_right_image)
@@ -70,31 +72,31 @@ def main():
     end = timer()
     print("elapsed time image smoothing: ", end - start)
     
-    # start = timer()
-    # Ixl,Iyl = sobelFilter.computeDerivative(px_array_left, image_width, image_height)
-    # Ixr,Iyr = sobelFilter.computeDerivative(px_array_right, image_width, image_height)
+    start = timer()
+    Ixl,Iyl = sobelFilter.computeDerivative(px_array_left, image_width, image_height)
+    Ixr,Iyr = sobelFilter.computeDerivative(px_array_right, image_width, image_height)
 
-    # #comput M component
-    # Ixl2,Iyl2,Ixyl2 = sobelFilter.computeMComponents(Ixl,Iyl)
-    # Ixr2,Iyr2,Ixyr2 = sobelFilter.computeMComponents(Ixr,Iyr)
+    #comput M component
+    Ixl2,Iyl2,Ixyl2 = sobelFilter.computeMComponents(Ixl,Iyl)
+    Ixr2,Iyr2,Ixyr2 = sobelFilter.computeMComponents(Ixr,Iyr)
 
-    # #smooth Ix2 Iy2 Ixy
-    # SmoothedIxl2 = IPSmooth.computeGaussianAveraging9x9(Ixl2,image_width,image_height)
-    # SmoothedIyl2 = IPSmooth.computeGaussianAveraging9x9(Iyl2,image_width,image_height)
-    # SmoothedIxyl2 = IPSmooth.computeGaussianAveraging9x9(Ixyl2,image_width,image_height)
+    #smooth Ix2 Iy2 Ixy
+    SmoothedIxl2 = IPSmooth.computeGaussianAveraging9x9(Ixl2,image_width,image_height)
+    SmoothedIyl2 = IPSmooth.computeGaussianAveraging9x9(Iyl2,image_width,image_height)
+    SmoothedIxyl2 = IPSmooth.computeGaussianAveraging9x9(Ixyl2,image_width,image_height)
 
-    # SmoothedIxr2 = IPSmooth.computeGaussianAveraging9x9(Ixr2,image_width,image_height)
-    # SmoothedIyr2 = IPSmooth.computeGaussianAveraging9x9(Iyr2,image_width,image_height)
-    # SmoothedIxyr2 = IPSmooth.computeGaussianAveraging9x9(Ixyr2,image_width,image_height)
+    SmoothedIxr2 = IPSmooth.computeGaussianAveraging9x9(Ixr2,image_width,image_height)
+    SmoothedIyr2 = IPSmooth.computeGaussianAveraging9x9(Iyr2,image_width,image_height)
+    SmoothedIxyr2 = IPSmooth.computeGaussianAveraging9x9(Ixyr2,image_width,image_height)
 
-    # #Compute Cornerness  R is for ploting
-    # C_L, C_L_tuples,R_L = cornerScore.cornerscore(SmoothedIxl2,SmoothedIyl2,SmoothedIxyl2)
-    # C_L_tuples.reverse()
-    # C_L_tuples = C_L_tuples[0:1000]
+    #Compute Cornerness  R is for ploting
+    C_L, C_L_tuples,R_L = cornerScore.cornerscore(SmoothedIxl2,SmoothedIyl2,SmoothedIxyl2)
+    C_L_tuples.reverse()
+    C_L_tuples = C_L_tuples[0:1000]
 
-    # C_R, C_R_tuples,R_R = cornerScore.cornerscore(SmoothedIxr2,SmoothedIyr2,SmoothedIxyr2)
-    # C_R_tuples.reverse()
-    # C_R_tuples = C_R_tuples[0:1000]
+    C_R, C_R_tuples,R_R = cornerScore.cornerscore(SmoothedIxr2,SmoothedIyr2,SmoothedIxyr2)
+    C_R_tuples.reverse()
+    C_R_tuples = C_R_tuples[0:1000]
 
 
     # with open("phase1outputL.csv","w")  as f:
@@ -111,35 +113,39 @@ def main():
 
 
 
-    # #compute matching descriptor
-    # newTuples_L,newTuples_R = alignment.preProcessing(C_L_tuples,C_R_tuples,image_width,image_height)
-    # descriptor_L = alignment.precomputeMatchingDescriptor(newTuples_L,px_array_left,image_width,image_height)
-    # descriptor_R = alignment.precomputeMatchingDescriptor(newTuples_R,px_array_right,image_width,image_height)
+    #compute matching descriptor
+    newTuples_L,newTuples_R = alignment.preProcessing(C_L_tuples,C_R_tuples,image_width,image_height)
+    descriptor_L = alignment.precomputeMatchingDescriptor(newTuples_L,px_array_left,image_width,image_height)
+    descriptor_R = alignment.precomputeMatchingDescriptor(newTuples_R,px_array_right,image_width,image_height)
 
 
-    # print('got descriptors')
-    # putativeMatches,left_descriptors_minused_mean,right_descriptors_minused_mean = alignment.match(descriptor_L,descriptor_R,newTuples_L,newTuples_R)
-    # print('got putativeMatches')
-    # end = timer()
-    # print("elapsed time image smoothing: ", end - start)
+    print('got descriptors')
+    putativeMatches,left_descriptors_minused_mean,right_descriptors_minused_mean = alignment.match(descriptor_L,descriptor_R,newTuples_L,newTuples_R)
+    print('got putativeMatches')
+    end = timer()
+    print("elapsed time image smoothing: ", end - start)
 
-    # putativeMatches = np.array(putativeMatches)
-    # with open("phase2Resultleft.csv","w")  as f:
-    #     writer=csv.writer(f, delimiter=",", lineterminator="\r\n") 
-    #     writer.writerows(putativeMatches[:,0])
+    putativeMatches = np.array(putativeMatches)
+    with open("phase2Resultleft.csv","w")  as f:
+        writer = csv.DictWriter(f, fieldnames = ["y", "x", "NCC"])
+        writer.writeheader()
+        writer=csv.writer(f, delimiter=",", lineterminator="\r\n") 
+        writer.writerows(putativeMatches[:,0])
     
-    # with open("phase2Resultright.csv","w")  as f:
-    #     writer=csv.writer(f, delimiter=",", lineterminator="\r\n") 
-    #     writer.writerows(putativeMatches[:,1])
+    with open("phase2Resultright.csv","w")  as f:
+        writer = csv.DictWriter(f, fieldnames = ["y", "x", "NCC"])
+        writer.writeheader()
+        writer=csv.writer(f, delimiter=",", lineterminator="\r\n") 
+        writer.writerows(putativeMatches[:,1])
 
     # read phase 2 result
     putativeMatchesRead = readCSV.readPhase2Result()
     putativeMatchesRead = np.array(putativeMatchesRead)
     # print(putativeMatchesRead)
-    # normalized_left_corner = findHomography.normalise(descriptor_L)
-    # normalized_right_corner = findHomography.normalise(descriptor_R)
 
     H,left,right = findHomography.findhomography(putativeMatchesRead)
+    # putativeMatches = np.array(putativeMatches)
+    # H,left,right = findHomography.findhomography(putativeMatches)
     print(H)
     # print(left)
     # print(right)
@@ -192,17 +198,17 @@ def main():
     # pyplot.show()
 
 
-    ## plot inliers
-    # pyplot.imshow(matchingImage, cmap='gray')
-    # ax = pyplot.gca()
-    # ax.set_title("Matching image")
-    # for i in range(len(left)):
-    #     pointA = (int(left[i][0]),int(left[i][1])) #(x,y)
-    #     pointB = (int(right[i][0])+image_width, int(right[i][1]))
-    #     connection = ConnectionPatch(pointA, pointB, "data", edgecolor='r', linewidth=0.3)
-    #     ax.add_artist(connection)
+    # plot inliers
+    pyplot.imshow(matchingImage, cmap='gray')
+    ax = pyplot.gca()
+    ax.set_title("Matching image")
+    for i in range(len(left)):
+        pointA = (int(left[i][0]),int(left[i][1])) #(x,y)
+        pointB = (int(right[i][0])+image_width, int(right[i][1]))
+        connection = ConnectionPatch(pointA, pointB, "data", edgecolor='r', linewidth=0.3)
+        ax.add_artist(connection)
 
-    # pyplot.show()
+    pyplot.show()
 
 if __name__ == "__main__":
     main()
