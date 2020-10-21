@@ -1,19 +1,13 @@
 import numpy as np
-def im():
-    H = [[ 1.13027411e+00 ,5.14837414e-02,-5.45949905e+01],[ 1.55226561e-02 ,1.16910770e+00,-7.45823504e+02],[-1.55121721e-05, 1.79008277e-04, 1.00000000e+00]]
-    H = np.array(H)
-    left_homogenous_point = (444, 947, 1)
-    point = np.array(left_homogenous_point)
-    point = point.T
-    transformed_point = H.dot(point)
+import math
 
-    transformed_point[:] = [x / transformed_point[2] for x in transformed_point]
-    print("left point")
-    print(left_homogenous_point)
+H = np.array([[ 1.34376576e+00,-2.59822655e-02 ,-2.76359394e+02],
+ [ 1.26652755e-01 , 1.17295657e+00 ,-5.83733890e+01],
+ [ 3.57779925e-04 ,-3.80543974e-05 , 1.00000000e+00]])
 
-    print("transformed point")
-    print(transformed_point)
-
-    print("right point")
-    print((426.0, 317.0))
-
+mappedPoint = np.array([241,723,1])
+sourcePoint = H.dot(mappedPoint)
+print(sourcePoint)
+# sourcePoint[:] = [x / mappedPoint[2] for x in mappedPoint]
+point = [sourcePoint[0]/sourcePoint[2],sourcePoint[1]/sourcePoint[2]]
+print(point)

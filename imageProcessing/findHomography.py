@@ -175,7 +175,6 @@ def findhomography(putativeMatch):
     # print("H")
     # print(best_H)
     H = computeFianlH(inlier_left,inlier_right)
-    print(len(inlier_left))
     return H,inlier_left,inlier_right
 
 

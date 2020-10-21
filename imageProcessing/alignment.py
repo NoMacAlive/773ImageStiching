@@ -1,5 +1,4 @@
 import numpy as np
-import pysnooper
 import math
 #remove out of boundary points
 def preProcessing(left_corners_tuples,right_corners_tuples,width,height):

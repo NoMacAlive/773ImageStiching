@@ -68,3 +68,15 @@ def computeGaussianAveraging9x9(pixel_array, image_width, image_height):
     averaged = IPConv2D.computeSeparableConvolution2DOddNTapBorderZero(pixel_array, image_width, image_height, smoothing_3tap)
 
     return averaged
+
+def computeGaussianAveraging(pixel_array, image_width, image_height, filter_size):
+    if filter_size == 3:
+        return computeGaussianAveraging3x3(pixel_array, image_width, image_height)
+    elif filter_size == 5:
+        return computeGaussianAveraging5x5(pixel_array, image_width, image_height)
+    elif filter_size == 7:
+        return computeGaussianAveraging7x7(pixel_array, image_width, image_height)
+    elif filter_size == 9:
+        return computeGaussianAveraging9x9(pixel_array, image_width, image_height)
+    
+    return null

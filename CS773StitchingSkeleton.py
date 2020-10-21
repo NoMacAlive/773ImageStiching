@@ -23,6 +23,9 @@ import imageProcessing.alignment as alignment
 #my code for assignment 3
 import imageProcessing.findHomography as findHomography
 
+# my code for phase 4
+import imageProcessing.warping as warp
+
 
 # util I wrote
 import readCSV as readCSV
@@ -58,14 +61,17 @@ def prepareMatchingImage(left_pixel_array, right_pixel_array, image_width, image
 
 # This is our code skeleton that performs the stitching
 def main():
-    # filename_left_image = "./images/panoramaStitching/bryce_left_02.png"
-    # filename_right_image = "./images/panoramaStitching/bryce_right_02.png"
-    filename_left_image = "./images/panoramaStitching/tongariro_left_01.png"
-    filename_right_image = "./images/panoramaStitching/tongariro_right_01.png"
+    filename_left_image = "./images/panoramaStitching/bryce_left_02.png"
+    filename_right_image = "./images/panoramaStitching/bryce_right_02.png"
+    # filename_left_image = "./images/panoramaStitching/tongariro_left_01.png"
+    # filename_right_image = "./images/panoramaStitching/tongariro_right_01.png"
+    # filename_left_image = "./images/panoramaStitching/grand_canyon_left_01.png"
+    # filename_right_image = "./images/panoramaStitching/grand_canyon_right_01.png"
 
     (image_width, image_height, px_array_left_original)  = IORW.readRGBImageAndConvertToGreyscalePixelArray(filename_left_image)
     (image_width, image_height, px_array_right_original) = IORW.readRGBImageAndConvertToGreyscalePixelArray(filename_right_image)
-
+    # pyplot.imshow(px_array_left_original,'rainbow')
+    # pyplot.show()
     start = timer()
     px_array_left = IPSmooth.computeGaussianAveraging3x3(px_array_left_original, image_width, image_height)
     px_array_right = IPSmooth.computeGaussianAveraging3x3(px_array_right_original, image_width, image_height)
@@ -80,14 +86,15 @@ def main():
     Ixl2,Iyl2,Ixyl2 = sobelFilter.computeMComponents(Ixl,Iyl)
     Ixr2,Iyr2,Ixyr2 = sobelFilter.computeMComponents(Ixr,Iyr)
 
+    filter_size = 5
     #smooth Ix2 Iy2 Ixy
-    SmoothedIxl2 = IPSmooth.computeGaussianAveraging9x9(Ixl2,image_width,image_height)
-    SmoothedIyl2 = IPSmooth.computeGaussianAveraging9x9(Iyl2,image_width,image_height)
-    SmoothedIxyl2 = IPSmooth.computeGaussianAveraging9x9(Ixyl2,image_width,image_height)
+    SmoothedIxl2 = IPSmooth.computeGaussianAveraging(Ixl2,image_width,image_height,filter_size)
+    SmoothedIyl2 = IPSmooth.computeGaussianAveraging(Iyl2,image_width,image_height,filter_size)
+    SmoothedIxyl2 = IPSmooth.computeGaussianAveraging(Ixyl2,image_width,image_height,filter_size)
 
-    SmoothedIxr2 = IPSmooth.computeGaussianAveraging9x9(Ixr2,image_width,image_height)
-    SmoothedIyr2 = IPSmooth.computeGaussianAveraging9x9(Iyr2,image_width,image_height)
-    SmoothedIxyr2 = IPSmooth.computeGaussianAveraging9x9(Ixyr2,image_width,image_height)
+    SmoothedIxr2 = IPSmooth.computeGaussianAveraging(Ixr2,image_width,image_height,filter_size)
+    SmoothedIyr2 = IPSmooth.computeGaussianAveraging(Iyr2,image_width,image_height,filter_size)
+    SmoothedIxyr2 = IPSmooth.computeGaussianAveraging(Ixyr2,image_width,image_height,filter_size)
 
     #Compute Cornerness  R is for ploting
     C_L, C_L_tuples,R_L = cornerScore.cornerscore(SmoothedIxl2,SmoothedIyl2,SmoothedIxyl2)
@@ -98,17 +105,70 @@ def main():
     C_R_tuples.reverse()
     C_R_tuples = C_R_tuples[0:1000]
 
+   #Ix,Iy
+    fig2, axs2 = pyplot.subplots(2, 3)
+    axs2[0][0].set_title('Ix left')
+    axs2[0][1].set_title('Iy left')
+    # axs2[0][2].set_title('Ixy left')
+    axs2[0][0].imshow(Ixl, cmap='gray')
+    axs2[0][1].imshow(Iyl, cmap='gray')
+    # axs2[0][2].imshow(Ixyl, cmap='gray')
+    axs2[1][0].set_title('Ix right')
+    axs2[1][1].set_title('Iy right')
+    # axs2[1][2].set_title('Ixy right')
+    axs2[1][0].imshow(Ixr, cmap='gray')
+    axs2[1][1].imshow(Iyr, cmap='gray')
+    # axs2[1][2].imshow(Ixyr, cmap='gray')
+    pyplot.show()
 
-    # with open("phase1outputL.csv","w")  as f:
-    #     writer=csv.writer(f, delimiter=",", lineterminator="\r\n") 
-    #     writer.writerows(C_L_tuples)
-    # with open("phase1outputR.csv","w")  as f:
-    #     writer=csv.writer(f, delimiter=",", lineterminator="\r\n") 
-    #     writer.writerows(C_R_tuples)
-    # print("wrote phase 1 results")
+    #Ix2,Iy2,Ixy2
+    fig3, axs3 = pyplot.subplots(2, 3)
+    axs3[0][0].set_title('Ix2 left')
+    axs3[0][1].set_title('Iy2 left')
+    axs3[0][2].set_title('Ixy2 left')
+    axs3[0][0].imshow(Ixl, cmap='gray')
+    axs3[0][1].imshow(Iyl, cmap='gray')
+    axs3[0][2].imshow(Ixyl2, cmap='gray')
+    axs3[1][0].set_title('Ix2 right')
+    axs3[1][1].set_title('Iy2 right')
+    axs3[1][2].set_title('Ixy2 right')
+    axs3[1][0].imshow(Ixr, cmap='gray')
+    axs3[1][1].imshow(Iyr, cmap='gray')
+    axs3[1][2].imshow(Ixyr2, cmap='gray')
+    pyplot.show()
 
-    # start = timer()
-    # C_L_tuples,C_R_tuples = readCSV.readPhase1Result()
+    #Ix2,Iy2,Ixy2 smoothed
+    fig3, axs3 = pyplot.subplots(2, 3)
+    axs3[0][0].set_title('Ix2 left')
+    axs3[0][1].set_title('Iy2 left')
+    axs3[0][2].set_title('Ixy2 left')
+    axs3[0][0].imshow(SmoothedIxl2, cmap='gray')
+    axs3[0][1].imshow(SmoothedIyl2, cmap='gray')
+    axs3[0][2].imshow(SmoothedIxyl2, cmap='gray')
+    axs3[1][0].set_title('Ix2 right')
+    axs3[1][1].set_title('Iy2 right')
+    axs3[1][2].set_title('Ixy2 right')
+    axs3[1][0].imshow(SmoothedIxr2, cmap='gray')
+    axs3[1][1].imshow(SmoothedIyr2, cmap='gray')
+    axs3[1][2].imshow(SmoothedIxyr2, cmap='gray')
+    pyplot.show()
+    # some visualizations
+
+    fig1, axs1 = pyplot.subplots(1, 2)
+    axs1[0].set_title('Harris response left overlaid on orig image')
+    axs1[1].set_title('Harris response right overlaid on orig image')
+    axs1[0].imshow(px_array_left, cmap='gray')
+    axs1[1].imshow(px_array_right, cmap='gray')
+    # # with open("phase1outputL.csv","w")  as f:
+    # #     writer=csv.writer(f, delimiter=",", lineterminator="\r\n") 
+    # #     writer.writerows(C_L_tuples)
+    # # with open("phase1outputR.csv","w")  as f:
+    # #     writer=csv.writer(f, delimiter=",", lineterminator="\r\n") 
+    # #     writer.writerows(C_R_tuples)
+    # # print("wrote phase 1 results")
+
+    # # start = timer()
+    # # C_L_tuples,C_R_tuples = readCSV.readPhase1Result()
    
 
 
@@ -146,7 +206,9 @@ def main():
     H,left,right = findHomography.findhomography(putativeMatchesRead)
     # putativeMatches = np.array(putativeMatches)
     # H,left,right = findHomography.findhomography(putativeMatches)
-    print(H)
+    # print(H)
+    # H = []
+    result = warp.warpImage(H, px_array_left,px_array_right)
     # print(left)
     # print(right)
     # make sure greyscale image is stretched to full 8 bit intensity range of 0 to 255
@@ -155,37 +217,31 @@ def main():
 
 
 
+ 
 
-    # some visualizations
+    # plot a red point in the center of each image
+    circle = Circle((image_width/2, image_height/2), 3.5, color='r')
+    axs1[0].add_patch(circle)
 
-    # fig1, axs1 = pyplot.subplots(1, 2)
-    # axs1[0].set_title('Harris response left overlaid on orig image')
-    # axs1[1].set_title('Harris response right overlaid on orig image')
-    # axs1[0].imshow(px_array_left, cmap='gray')
-    # axs1[1].imshow(px_array_right, cmap='gray')
+    for t in C_L_tuples:
+        circle = Circle((t[1],t[0]), 0.5, color='r')
+        axs1[0].add_patch(circle)
 
-    # # plot a red point in the center of each image
-    # circle = Circle((image_width/2, image_height/2), 3.5, color='r')
-    # axs1[0].add_patch(circle)
+    for t in C_R_tuples:
+        circle = Circle((t[1],t[0]), 0.5, color='r')
+        axs1[1].add_patch(circle)
 
-    # for t in C_L_tuples:
-    #     circle = Circle((t[1],t[0]), 0.5, color='r')
-    #     axs1[0].add_patch(circle)
+    circle = Circle((image_width/2, image_height/2), 3.5, color='r')
+    axs1[1].add_patch(circle)
 
-    # for t in C_R_tuples:
-    #     circle = Circle((t[1],t[0]), 0.5, color='r')
-    #     axs1[1].add_patch(circle)
-
-    # circle = Circle((image_width/2, image_height/2), 3.5, color='r')
-    # axs1[1].add_patch(circle)
-
-    # #pyplot.show()
+    pyplot.show()
 
     # # a combined image including a red matching line as a connection patch artist (from matplotlib\)
 
     matchingImage = prepareMatchingImage(px_array_left, px_array_right, image_width, image_height)
-
-    # pyplot.imshow(matchingImage, cmap='gray')
+    pyplot.imshow(result,cmap='gray')
+    pyplot.show()
+    pyplot.imshow(matchingImage, cmap='gray')
     # ax = pyplot.gca()
     # ax.set_title("Matching image")
     # for tuple in putativeMatchesRead[:,:]:
@@ -209,6 +265,7 @@ def main():
         ax.add_artist(connection)
 
     pyplot.show()
+
 
 if __name__ == "__main__":
     main()
